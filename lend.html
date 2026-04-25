@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lend • CVR P2P</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container">
+  <a href="dashboard.html" class="btn-back">← Back to Dashboard</a>
+
+  <div class="form-card">
+    <h2>Lend a Resource</h2>
+    <p class="sub">Help your peers — list an item to lend. It will appear on the Borrow page.</p>
+
+    <form onsubmit="addLend(event)">
+      <div class="field">
+        <label>Resource Name</label>
+        <input id="l-name" type="text" required placeholder="e.g. Arduino Uno Kit" />
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="l-cat" required>
+          <option value="">Select category</option>
+          <option>Books</option><option>Electronics</option>
+          <option>Accessories</option><option>Lab Equipment</option><option>Others</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Number of Days</label>
+        <input id="l-days" type="number" min="1" required placeholder="e.g. 7" />
+      </div>
+      <button class="btn btn-primary" type="submit">List for Lending</button>
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  const user = requireAuth(); renderNavbar('lend');
+  function addLend(e){
+    e.preventDefault();
+    const items = DATA.lends();
+    const newItem = {
+      id: Date.now(),
+      name: document.getElementById('l-name').value.trim(),
+      category: document.getElementById('l-cat').value,
+      days: Number(document.getElementById('l-days').value),
+      lender: user?.name || 'You'
+    };
+    items.unshift(newItem);
+    DATA.saveLends(items);
+
+    const h = DATA.history();
+    h.lent.push({...newItem, date:new Date().toLocaleDateString()});
+    DATA.saveHistory(h);
+
+    e.target.reset();
+    toast('Resource listed successfully!');
+    setTimeout(()=>location.href='borrow.html',700);
+  }
+</script>
+</body>
+</html>

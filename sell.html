@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sell • CVR P2P</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container">
+  <a href="dashboard.html" class="btn-back">← Back to Dashboard</a>
+
+  <div class="form-card">
+    <h2>Sell a Resource</h2>
+    <p class="sub">Fill the details below — your item will instantly appear on the Buy page.</p>
+
+    <form onsubmit="addSell(event)">
+      <div class="field">
+        <label>Item Name</label>
+        <input id="s-name" type="text" required placeholder="e.g. Engineering Drawing Kit" />
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="s-cat" required>
+          <option value="">Select category</option>
+          <option>Books</option><option>Electronics</option>
+          <option>Accessories</option><option>Lab Equipment</option><option>Others</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Price (₹)</label>
+        <input id="s-price" type="number" min="1" required placeholder="e.g. 500" />
+      </div>
+      <button class="btn btn-primary" type="submit">List Item for Sale</button>
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  const user = requireAuth(); renderNavbar('sell');
+  function addSell(e){
+    e.preventDefault();
+    const items = DATA.sells();
+    const newItem = {
+      id: Date.now(),
+      name: document.getElementById('s-name').value.trim(),
+      category: document.getElementById('s-cat').value,
+      price: Number(document.getElementById('s-price').value),
+      seller: user?.name || 'You'
+    };
+    items.unshift(newItem);
+    DATA.saveSells(items);
+
+    const h = DATA.history();
+    h.sold.push({...newItem, date:new Date().toLocaleDateString()});
+    DATA.saveHistory(h);
+
+    e.target.reset();
+    toast('Item listed successfully!');
+    setTimeout(()=>location.href='buy.html',700);
+  }
+</script>
+</body>
+</html>

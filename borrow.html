@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Borrow • CVR P2P</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container">
+  <a href="dashboard.html" class="btn-back">← Back to Dashboard</a>
+
+  <div class="page-header">
+    <h1>Borrow Resources</h1>
+    <p>Items shared by fellow students for short-term use.</p>
+  </div>
+
+  <div class="filter-row" id="filters">
+    <button class="active" data-cat="All">All</button>
+    <button data-cat="Books">Books</button>
+    <button data-cat="Electronics">Electronics</button>
+    <button data-cat="Accessories">Accessories</button>
+    <button data-cat="Lab Equipment">Lab Equipment</button>
+    <button data-cat="Others">Others</button>
+  </div>
+
+  <div id="grid" class="card-grid"></div>
+  <div id="empty" class="empty-state" style="display:none">
+    <h3>No items to borrow</h3>
+    <p>Try a different filter or <a href="lend.html" style="color:var(--primary);font-weight:600">lend something</a> to start.</p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  requireAuth(); renderNavbar('borrow');
+  let activeCat = 'All';
+
+  function render(){
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    let items = DATA.lends();
+    if(activeCat!=='All') items = items.filter(i=>i.category===activeCat);
+    if(items.length===0){ grid.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    grid.innerHTML = items.map(borrowCard).join('');
+  }
+
+  document.querySelectorAll('#filters button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      activeCat = b.dataset.cat;
+      render();
+    });
+  });
+  render();
+</script>
+</body>
+</html>

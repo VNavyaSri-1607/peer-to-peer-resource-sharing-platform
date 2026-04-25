@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Login • CVR P2P</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="login-bg">
+  <div class="login-card">
+    <h2>CVR P2P Resource Hub</h2>
+    <p class="sub">Buy, sell, borrow & lend with fellow students.</p>
+
+    <div class="tabs">
+      <button id="tab-login" class="active" onclick="showTab('login')">Login</button>
+      <button id="tab-register" onclick="showTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <form id="form-login" onsubmit="doLogin(event)">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="login-name" required placeholder="e.g. john_doe" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-pass" required placeholder="••••••••" />
+      </div>
+      <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+
+    <!-- REGISTER -->
+    <form id="form-register" style="display:none" onsubmit="doRegister(event)">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" required placeholder="Your full name" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reg-email" required placeholder="you@cvr.ac.in" />
+      </div>
+      <div class="field">
+        <label>Department</label>
+        <input type="text" id="reg-dept" required placeholder="CSE / ECE / Mech..." />
+      </div>
+      <div class="field">
+        <label>Year</label>
+        <select id="reg-year" required>
+          <option value="">Select year</option><option>1st</option><option>2nd</option>
+          <option>3rd</option><option>4th</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="reg-pass" required placeholder="Create a password" />
+      </div>
+      <button class="btn btn-primary" type="submit">Create Account</button>
+    </form>
+  </div>
+
+<script src="script.js"></script>
+<script>
+  function showTab(t){
+    document.getElementById('tab-login').classList.toggle('active',t==='login');
+    document.getElementById('tab-register').classList.toggle('active',t==='register');
+    document.getElementById('form-login').style.display = t==='login'?'block':'none';
+    document.getElementById('form-register').style.display = t==='register'?'block':'none';
+  }
+  function doLogin(e){
+    e.preventDefault();
+    const name = document.getElementById('login-name').value.trim();
+    const existing = LS.get('cvr_user', null);
+    const user = existing && existing.name === name ? existing : {
+      name, email:`${name}@cvr.ac.in`, dept:'CSE', year:'3rd'
+    };
+    LS.set('cvr_user', user);
+    toast(`Welcome, ${name}!`);
+    setTimeout(()=>location.href='dashboard.html', 600);
+  }
+  function doRegister(e){
+    e.preventDefault();
+    const user = {
+      name: document.getElementById('reg-name').value.trim(),
+      email: document.getElementById('reg-email').value.trim(),
+      dept: document.getElementById('reg-dept').value.trim(),
+      year: document.getElementById('reg-year').value,
+    };
+    LS.set('cvr_user', user);
+    toast('Account created!');
+    setTimeout(()=>location.href='dashboard.html', 600);
+  }
+</script>
+</body>
+</html>

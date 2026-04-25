@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Buy • CVR P2P</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container">
+  <a href="dashboard.html" class="btn-back">← Back to Dashboard</a>
+
+  <div class="page-header">
+    <h1>Buy Resources</h1>
+    <p>Items posted for sale by fellow students.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span>🔍</span>
+      <input id="search" type="text" placeholder="Search by name, category or seller..." />
+    </div>
+    <a href="sell.html" class="btn btn-primary">+ Sell an Item</a>
+  </div>
+
+  <div id="grid" class="card-grid"></div>
+  <div id="empty" class="empty-state" style="display:none">
+    <h3>No items yet</h3>
+    <p>Be the first to <a href="sell.html" style="color:var(--primary);font-weight:600">post an item for sale</a>.</p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  requireAuth(); renderNavbar('buy');
+
+  function render(filter=''){
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    let items = DATA.sells();
+    if(filter){
+      const q = filter.toLowerCase();
+      items = items.filter(i=>
+        i.name.toLowerCase().includes(q) ||
+        i.category.toLowerCase().includes(q) ||
+        i.seller.toLowerCase().includes(q));
+    }
+    if(items.length===0){ grid.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    grid.innerHTML = items.map(buyCard).join('');
+  }
+  document.getElementById('search').addEventListener('input',e=>render(e.target.value));
+  render();
+</script>
+</body>
+</html>

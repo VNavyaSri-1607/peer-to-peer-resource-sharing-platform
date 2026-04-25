@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resource Details • CVR P2P</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container">
+  <a href="javascript:history.back()" class="btn-back">← Back</a>
+
+  <div class="detail-grid">
+    <div class="detail-card" id="details"></div>
+
+    <div class="chat-card">
+      <div class="chat-head" id="chat-head">Chat</div>
+      <div class="chat-body" id="chat-body">
+        <div class="bubble them">Hi! Interested in this resource? Feel free to ask anything 👋</div>
+      </div>
+      <form class="chat-input" onsubmit="sendMsg(event)">
+        <input id="msg" type="text" placeholder="Type your message..." autocomplete="off" required />
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  requireAuth(); renderNavbar();
+
+  const params = new URLSearchParams(location.search);
+  const type = params.get('type'); // 'buy' or 'borrow'
+  const id = Number(params.get('id'));
+  const list = type==='buy' ? DATA.sells() : DATA.lends();
+  const item = list.find(x=>x.id===id);
+
+  const root = document.getElementById('details');
+  if(!item){
+    root.innerHTML = `<h2>Resource not found</h2><p style="color:var(--muted);margin-top:6px">It may have been removed or already taken.</p>`;
+  } else {
+    const ownerLabel = type==='buy' ? 'Seller' : 'Lender';
+    const owner = type==='buy' ? item.seller : item.lender;
+    const valueLabel = type==='buy' ? 'Price' : 'Duration';
+    const value = type==='buy' ? `₹${item.price}` : `${item.days} days`;
+
+    document.getElementById('chat-head').textContent = `Chat with ${owner}`;
+
+    root.innerHTML = `
+      <span class="tag">${item.category}</span>
+      <h1>${item.name}</h1>
+      <p style="color:var(--muted)">Listed by ${owner} • Available now</p>
+      <div class="price">${value}</div>
+      <ul>
+        <li><span>Category</span><span>${item.category}</span></li>
+        <li><span>${ownerLabel}</span><span>${owner}</span></li>
+        <li><span>${valueLabel}</span><span>${value}</span></li>
+        <li><span>Status</span><span style="color:var(--success);font-weight:600">Available</span></li>
+      </ul>
+      <p style="color:var(--muted);font-size:.92rem;margin-top:6px">
+        This resource is shared via the CVR campus P2P network. You can chat with the owner before confirming.
+      </p>
+      <div class="detail-actions">
+        <button class="btn btn-ghost" onclick="document.getElementById('msg').focus()">💬 Chat</button>
+        <button class="btn btn-outline" onclick="toast('Call request sent to ${owner}')">📞 Request Call</button>
+        ${type==='buy'
+          ? `<button class="btn btn-primary" onclick="buyNow(${item.id})">Buy Now</button>`
+          : `<button class="btn btn-primary" onclick="borrowNow(${item.id})">Borrow</button>`}
+      </div>
+    `;
+  }
+
+  function sendMsg(e){
+    e.preventDefault();
+    const input = document.getElementById('msg');
+    const text = input.value.trim(); if(!text) return;
+    const body = document.getElementById('chat-body');
+    body.insertAdjacentHTML('beforeend', `<div class="bubble me">${text}</div>`);
+    input.value=''; body.scrollTop = body.scrollHeight;
+    setTimeout(()=>{
+      body.insertAdjacentHTML('beforeend', `<div class="bubble them">Got it! I'll get back to you shortly.</div>`);
+      body.scrollTop = body.scrollHeight;
+    }, 800);
+  }
+</script>
+</body>
+</html>

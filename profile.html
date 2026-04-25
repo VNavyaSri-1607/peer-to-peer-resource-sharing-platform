@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Profile • CVR P2P</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container">
+  <a href="dashboard.html" class="btn-back">← Back to Dashboard</a>
+
+  <div class="profile-grid">
+    <div class="profile-card">
+      <div class="avatar" id="avatar">U</div>
+      <h2 id="p-name">User</h2>
+      <p class="muted" id="p-email">user@cvr.ac.in</p>
+      <button class="btn btn-outline" onclick="logout()">Logout</button>
+      <div class="info-list">
+        <div><span>Department</span><span id="p-dept">CSE</span></div>
+        <div><span>Year</span><span id="p-year">3rd</span></div>
+        <div><span>Member</span><span>CVR P2P</span></div>
+      </div>
+    </div>
+
+    <div class="history-card">
+      <h3>Transaction History</h3>
+      <div class="tabs-line">
+        <button class="active" data-tab="bought">Bought</button>
+        <button data-tab="sold">Sold</button>
+        <button data-tab="borrowed">Borrowed</button>
+        <button data-tab="lent">Lent</button>
+      </div>
+      <div id="history-list" class="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  const user = requireAuth(); renderNavbar('profile');
+  document.getElementById('avatar').textContent =
+    (user.name||'U').split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('p-name').textContent = user.name;
+  document.getElementById('p-email').textContent = user.email;
+  document.getElementById('p-dept').textContent = user.dept;
+  document.getElementById('p-year').textContent = user.year;
+
+  let activeTab = 'bought';
+  function renderHistory(){
+    const h = DATA.history();
+    const list = h[activeTab] || [];
+    const root = document.getElementById('history-list');
+    if(list.length===0){
+      root.innerHTML = `<div class="empty-state" style="padding:30px"><h3>No records yet</h3><p>Your ${activeTab} items will appear here.</p></div>`;
+      return;
+    }
+    root.innerHTML = list.map(it=>{
+      const detail = it.price ? `₹${it.price}` : `${it.days} days`;
+      const who = it.seller || it.lender || '';
+      return `<div class="history-item">
+        <div>
+          <div class="name">${it.name}</div>
+          <div class="meta">${it.category} • ${who} • ${it.date||''}</div>
+        </div>
+        <div style="font-weight:700;color:var(--primary)">${detail}</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.querySelectorAll('.tabs-line button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.tabs-line button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      activeTab = b.dataset.tab;
+      renderHistory();
+    });
+  });
+  renderHistory();
+</script>
+</body>
+</html>
